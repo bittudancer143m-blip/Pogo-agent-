@@ -1,28 +1,35 @@
-name: PogoPals AI Agent
+import os
+from google import genai
 
-on:
-  workflow_dispatch:
-  push:
-    branches:
-      - main
+def start_agent():
+    print("PogoPals AI Agent Started!")
 
-jobs:
-  run-agent:
-    runs-on: ubuntu-latest
+    api_key = os.getenv("GEMINI_API_KEY")
 
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+    if not api_key:
+        raise ValueError("Gemini API Key not found!")
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+    client = genai.Client(api_key=api_key)
 
-      - name: Install Dependencies
-        run: pip install google-genai
+    print("Generating a Hindi Story...")
 
-      - name: Run PogoPals Agent
-        env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: python agent.py
+    response = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents="""
+        Write a beautiful and original Hindi
+        children's story.
+
+        Include:
+        1. An interesting title
+        2. Cute animal characters
+        3. Adventure and friendship
+        4. A happy ending
+        5. A moral lesson
+        """
+    )
+
+    print("\n===== POGOPALS STORY =====\n")
+    print(response.text)
+    print("\n===== STORY COMPLETED =====")
+
+start_agent()
